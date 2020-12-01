@@ -6,7 +6,7 @@ import (
 )
 
 type Dispatcher struct {
-	taskCounter    int                  // internal counter for number of tasks
+	TaskCounter    int                  // internal counter for number of tasks
 	taskQueue      chan *Task           // channel of tasks submitted by main()
 	dispatchStatus chan *DispatchStatus // channel for task/worker status reports
 	workQueue      chan *Task           // channel of work dispatched
@@ -35,7 +35,7 @@ type TaskExecutable func() error
 
 func CreateNewDispatcher() *Dispatcher {
 	dispatcher := &Dispatcher{
-		taskCounter:    0,
+		TaskCounter:    0,
 		taskQueue:      make(chan *Task),
 		dispatchStatus: make(chan *DispatchStatus),
 		workQueue:      make(chan *Task),
@@ -46,14 +46,18 @@ func CreateNewDispatcher() *Dispatcher {
 
 func (dispatcher *Dispatcher) AddTask(te TaskExecutable) {
 	task := &Task{
-		ID: dispatcher.taskCounter,
+		ID: dispatcher.TaskCounter,
 		F:  te,
 	}
 	go func() {
+		log.Println("GIRDI")
+		log.Println(dispatcher.taskQueue)
 		dispatcher.taskQueue <- task
+		log.Println("CIKTI")
+		log.Println(dispatcher.taskQueue)
 	}()
-	dispatcher.taskCounter++
-	fmt.Printf("TaskCounter is now: %d\n", dispatcher.taskCounter)
+	dispatcher.TaskCounter++
+	fmt.Printf("TaskCounter is now: %d\n", dispatcher.TaskCounter)
 }
 
 func CreateNewWorker(id int, workerQueue chan *Worker, taskQueue chan *Task, dStatus chan *DispatchStatus) *Worker {
@@ -87,7 +91,7 @@ func (dispatcher *Dispatcher) Start(numWorkers int) {
 				log.Printf("Got a dispatch status: \n\tType[%s] - ID[%d] - Status[%s]\n", dStatus.Type, dStatus.ID, dStatus.Status)
 				if dStatus.Type == "worker" {
 					if dStatus.Status == "quit" {
-						dispatcher.taskCounter--
+						dispatcher.TaskCounter--
 					}
 				}
 			}
@@ -117,7 +121,7 @@ func (worker *Worker) Start() {
 }
 
 func (dispatcher *Dispatcher) Finished() bool {
-	if dispatcher.taskCounter < 1 {
+	if dispatcher.TaskCounter < 1 {
 		return true
 	}
 	return false
