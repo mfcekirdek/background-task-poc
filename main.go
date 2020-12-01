@@ -8,6 +8,8 @@ import (
 	"github.com/mfcekirdek/background-task-poc/dispatcher"
 )
 
+var Dispatcher dispatcher.Dispatcher
+
 func main() {
 	task1 := func() error {
 		fmt.Printf("job1: performing work.\n")
@@ -23,13 +25,13 @@ func main() {
 		return nil
 	}
 
-	dispatcher := dispatcher.CreateNewDispatcher()
-	dispatcher.AddTask(task1)
-	dispatcher.AddTask(task2)
-	dispatcher.Start(2)
+	Dispatcher := dispatcher.CreateNewDispatcher()
+	Dispatcher.AddTask(task1)
+	Dispatcher.AddTask(task2)
+	Dispatcher.Start(2)
 
 	for {
-		if dispatcher.Finished() {
+		if Dispatcher.Finished() {
 			log.Println("All jobs finished")
 			break
 		}
